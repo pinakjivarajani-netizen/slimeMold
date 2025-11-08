@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slime Mould Route Optimizer - India</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---- ALL YOUR ORIGINAL CSS (unchanged) ---- */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Poppins",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}
+  .container{max-width:1400px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden}
+  header{background:linear-gradient(135deg,#4caf50,#2e7d32);color:white;padding:30px;text-align:center}
+  header h1{font-size:2.5em;font-weight:700;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,0.2)}
+  header p{font-size:1.1em;opacity:0.9}
+  .info-btn{margin-top:15px;background:rgba(255,255,255,0.2);border:2px solid white;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-family:"Poppins",sans-serif;transition:all .3s}
+  .info-btn:hover{background:white;color:#2e7d32}
+  .main-content{display:grid;grid-template-columns:400px 1fr;gap:0;height:700px}
+  .sidebar{background:#f8f9fa;padding:25px;border-right:2px solid #e0e0e0;overflow-y:auto;height:700px}
+  .control-section{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  .control-section h3{color:#2e7d32;margin-bottom:15px;font-size:1.1em;display:flex;align-items:center;gap:8px}
+  label{display:block;margin-bottom:8px;color:#555;font-weight:500;font-size:.9em}
+  select,input[type=text],input[type=number],button{width:100%;padding:12px;font-size:15px;border-radius:8px;border:2px solid #e0e0e0;font-family:"Poppins",sans-serif;transition:all .3s}
+  select:focus,input:focus{outline:none;border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,0.1)}
+  input{margin-bottom:10px}
+  button{background:linear-gradient(135deg,#4caf50,#45a049);color:white;border:none;cursor:pointer;font-weight:600;margin-top:10px;transition:transform .2s,box-shadow .2s}
+  button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 12px rgba(76,175,80,0.4)}
+  button:active{transform:translateY(0)}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,#ff6b6b,#ee5a6f);padding:15px;font-size:1.1em;margin-top:0}
+  button.secondary{background:linear-gradient(135deg,#667eea,#764ba2)}
+  button.danger{background:linear-gradient(135deg,#f44336,#d32f2f)}
+  button.warning{background:linear-gradient(135deg,#ff9800,#f57c00)}
+  .city-item,.obstacle-item{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;animation:slideIn .3s ease}
+  .obstacle-item{background:linear-gradient(135deg,#ffebee,#ffcdd2)}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+  .city-item span,.obstacle-item span{font-weight:600;color:#2e7d32}
+  .obstacle-item span{color:#d32f2f}
+  .city-item button,.obstacle-item button{width:auto;padding:6px 12px;font-size:.85em;margin:0}
+  #map{width:100%;height:700px}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:20px}
+  .stat-card{background:white;padding:15px;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  .stat-card h4{color:#666;font-size:.85em;margin-bottom:8px;text-transform:uppercase}
+  .stat-card p{color:#2e7d32;font-size:1.5em;font-weight:700}
+  #distanceMatrix{background:white;padding:15px;border-radius:10px;margin-top:15px;max-height:300px;overflow-y:auto}
+  #distanceMatrix h4{color:#2e7d32;margin-bottom:10px;font-size:1em}
+  .distance-row{padding:8px;background:#f5f5f5;margin-bottom:5px;border-radius:5px;font-size:.85em;display:flex;justify-content:space-between}
+  .distance-row span:first-child{color:#555}
+  .distance-row span:last-child{color:#2e7d32;font-weight:600}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;overflow-y:auto;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-content{background:white;max-width:900px;margin:50px auto;border-radius:20px;padding:40px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:slideUp .4s ease}
+  @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-close{position:absolute;top:20px;right:20px;background:#f44336;color:white;border:none;width:40px;height:40px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+  .modal-close:hover{transform:rotate(90deg)}
+  .modal-content h2{color:#2e7d32;margin-bottom:20px;font-size:2em;border-bottom:3px solid #4caf50;padding-bottom:10px}
+  .modal-content h3{color:#4caf50;margin-top:25px;margin-bottom:15px;font-size:1.3em}
+  .modal-content p,.modal-content li{line-height:1.8;color:#555;margin-bottom:12px}
+  .modal-content ul{margin-left:20px}
+  .info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:20px 0}
+  .info-card{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);padding:20px;border-radius:12px;border-left:4px solid #4caf50}
+  .info-card h4{color:#2e7d32;margin-bottom:10px;font-size:1.1em}
+  .pros-cons{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:20px 0}
+  .pros,.cons{padding:20px;border-radius:12px}
+  .pros{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-left:4px solid #4caf50}
+  .cons{background:linear-gradient(135deg,#ffebee,#ffcdd2);border-left:4px solid #f44336}
+  .pros h4{color:#2e7d32}
+  .cons h4{color:#d32f2f}
+  .summary-box{background:linear-gradient(135deg,#fff9c4,#fff59d);padding:25px;border-radius:12px;border-left:4px solid #fbc02d;margin:25px 0}
+  .summary-box h3{color:#f57f17;margin-top:0}
+  .mode-indicator{position:absolute;top:10px;right:10px;background:white;padding:10px 15px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:1000;font-weight:600;color:#4caf50}
+  .color-picker-row{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+  input[type=color]{width:60px;height:40px;cursor:pointer;padding:2px;border:2px solid #e0e0e0}
+  input[type=range]{flex:1;height:40px;cursor:pointer}
+  .width-label{font-weight:600;color:#2e7d32;min-width:35px}
+  .color-buttons{display:flex;gap:8px;flex-wrap:wrap}
+  .color-buttons button{padding:8px 12px;margin:0;width:auto;font-size:.85em}
+  @media(max-width:968px){
+    .main-content{grid-template-columns:1fr;height:auto}
+    .sidebar{max-height:none;height:auto;border-right:none;border-bottom:2px solid #e0e0e0}
+    #map{height:500px}
+    .info-grid,.pros-cons{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Slime Mould Route Optimizer</h1>
+      <p>Bio-Inspired Pathfinding Algorithm for Indian Cities</p>
+          </header>
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="control-section">
+          <h3>Add Locations</h3>
+          <label>Select State:</label>
+          <select id="stateSelect"><option value="">--Select State--</option></select>
+          <label style="margin-top:15px">Select City:</label>
+          <select id="citySelect"><option value="">--Select City--</option></select>
+          <button id="addCity">Add City</button>
+          <label style="margin-top:15px">Or Add Custom Location:</label>
+          <input id="stopInput" type="text" placeholder="Enter city name">
+          <button id="addStop" class="secondary">Add Custom Stop</button>
+          <button id="toggleMapClick" class="warning" style="margin-top:15px;">Enable Map Click Mode</button>
+        </div>
+
+        <div class="control-section">
+          <h3>Obstacles</h3>
+          <input id="obstacleInput" type="text" placeholder="Enter obstacle/city to avoid">
+          <button id="addObstacle" class="danger">Add Obstacle</button>
+          <div id="obstacleList" style="margin-top:15px;"><p style="color:#999;font-size:.9em;text-align:center;">No obstacles set</p></div>
+        </div>
+
+        <div class="control-section">
+          <h3>Route Appearance</h3>
+          <label>Route Color:</label>
+          <div class="color-picker-row">
+            <input type="color" id="routeColor" value="#ff6b6b">
+            <input type="range" id="routeWidth" min="2" max="10" value="4">
+            <span id="widthLabel" class="width-label">4px</span>
+          </div>
+          <div class="color-buttons">
+            <button onclick="setRouteColor('#ff6b6b')" style="background:#ff6b6b;">Red</button>
+            <button onclick="setRouteColor('#4caf50')" style="background:#4caf50;">Green</button>
+            <button onclick="setRouteColor('#2196F3')" style="background:#2196F3;">Blue</button>
+            <button onclick="setRouteColor('#ff9800')" style="background:#ff9800;">Orange</button>
+            <button onclick="setRouteColor('#9c27b0')" style="background:#9c27b0;">Purple</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3>Selected Cities</h3>
+          <div id="cityList"><p style="color:#999;font-size:.9em;text-align:center;">No cities added yet</p></div>
+        </div>
+
+        <div class="control-section">
+          <h3>Actions</h3>
+          <button id="go" class="primary">Find Optimal Route</button>
+          <button id="clearAll" class="danger">Clear All</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card"><h4>Cities</h4><p id="cityCount">0</p></div>
+          <div class="stat-card"><h4>Total Distance</h4><p id="totalDistance">0 km</p></div>
+        </div>
+        <div id="distanceMatrix"></div>
+      </div>
+
+      <div style="position:relative;">
+        <div id="modeIndicator" class="mode-indicator" style="display:none;">Click on map to add city</div>
+        <div id="map"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- ***** LEAFLET FIRST ***** -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- ***** YOUR APP CODE (deferred) ***** -->
+  <script defer>
+    const states = {
+      maharashtra: ["Mumbai","Pune","Nagpur","Nashik","Aurangabad","Thane","Kolhapur"],
+      gujarat: ["Ahmedabad","Surat","Vadodara","Rajkot","Bhavnagar","Jamnagar"],
+      karnataka: ["Bengaluru","Mysuru","Mangaluru","Hubballi","Belagavi","Davangere"],
+      tamilnadu: ["Chennai","Coimbatore","Madurai","Salem","Trichy","Tiruppur"],
+      rajasthan: ["Jaipur","Udaipur","Jodhpur","Kota","Ajmer","Bikaner"],
+      delhi: ["New Delhi","Noida","Gurgaon","Ghaziabad","Faridabad"],
+      up: ["Lucknow","Kanpur","Agra","Varanasi","Meerut","Allahabad"],
+      wb: ["Kolkata","Howrah","Durgapur","Siliguri","Asansol"]
+    };
+    let map;
+    let markers = [];
+    let cities = [];
+    let obstacles = [];
+    let routeLine = null;
+    let distanceMarkers = [];
+    let currentRouteColor = '#ff6b6b';
+    let currentRouteWidth = 4;
+    let mapClickMode = false;
+
+    // ---------- MAP INITIALISATION ----------
+    function initMap() {
+      map = L.map('map').setView([20.5937, 78.9629], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      map.on('click', async (e) => {
+        if (!mapClickMode) return;
+        const { lat, lng } = e.latlng;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          let placeName = data.address.city || data.address.town || data.address.village ||
+                          data.address.county || data.address.state || 'Custom Location';
+          const marker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>${placeName}</b><br>${data.display_name}`);
+          markers.push(marker);
+          cities.push({ name: placeName, lat, lng });
+          updateCityList();
+        } catch (error) {
+          const placeName = `Location (${lat.toFixed(3)}, ${lng.toFixed(3)})`;
+          const marker = L.marker([lat, lng]).addTo(map).bindPopup(`<b>${placeName}</b>`);
+          markers.push(marker);
+          cities.push({ name: placeName, lat, lng });
+          updateCityList();
+        }
+      });
+    }
+
+    // ---------- STATE / CITY SELECT ----------
+    function populateStates() {
+      const stateSelect = document.getElementById('stateSelect');
+      Object.keys(states).forEach(stateKey => {
+        const option = document.createElement('option');
+        option.value = stateKey;
+        option.textContent = stateKey.charAt(0).toUpperCase() + stateKey.slice(1).replace(/([A-Z])/g, ' $1');
+        stateSelect.appendChild(option);
+      });
+    }
+
+    document.getElementById('stateSelect').addEventListener('change', e => {
+      const state = e.target.value;
+      const citySelect = document.getElementById('citySelect');
+      citySelect.innerHTML = '<option value="">--Select City--</option>';
+      if (state && states[state]) {
+        states[state].forEach(city => {
+          const opt = document.createElement('option');
+          opt.value = city;
+          opt.textContent = city;
+          citySelect.appendChild(opt);
+        });
+      }
+    });
+
+    // ---------- ROUTE APPEARANCE ----------
+    document.getElementById('routeColor').addEventListener('change', e => {
+      currentRouteColor = e.target.value;
+      updateRouteAppearance();
+    });
+    document.getElementById('routeWidth').addEventListener('input', e => {
+      currentRouteWidth = parseInt(e.target.value);
+      document.getElementById('widthLabel').textContent = currentRouteWidth + 'px';
+      updateRouteAppearance();
+    });
+    function setRouteColor(color) {
+      currentRouteColor = color;
+      document.getElementById('routeColor').value = color;
+      updateRouteAppearance();
+    }
+    function updateRouteAppearance() {
+      if (routeLine) {
+        routeLine.setStyle({color: currentRouteColor, weight: currentRouteWidth, opacity: 0.8});
+      }
+      distanceMarkers.forEach(marker => {
+        const el = marker.getElement();
+        if (el) {
+          const div = el.querySelector('div');
+          if (div) {
+            div.style.borderColor = currentRouteColor;
+            div.style.color = currentRouteColor;
+          }
+        }
+      });
+    }
+
+    // ---------- CITY / OBSTACLE LISTS ----------
+    function updateCityList() {
+      const cityList = document.getElementById('cityList');
+      if (cities.length === 0) {
+        cityList.innerHTML = '<p style="color:#999;font-size:.9em;text-align:center;">No cities added yet</p>';
+      } else {
+        cityList.innerHTML = cities.map((city, idx) => `
+          <div class="city-item">
+            <span>${idx + 1}. ${city.name}</span>
+            <button onclick="removeCity(${idx})" class="danger">Remove</button>
+          </div>`).join('');
+      }
+      document.getElementById('cityCount').textContent = cities.length;
+    }
+
+    function updateObstacleList() {
+      const obstacleList = document.getElementById('obstacleList');
+      if (obstacles.length === 0) {
+        obstacleList.innerHTML = '<p style="color:#999;font-size:.9em;text-align:center;">No obstacles set</p>';
+      } else {
+        obstacleList.innerHTML = obstacles.map((obs, idx) => `
+          <div class="obstacle-item">
+            <span>${obs}</span>
+            <button onclick="removeObstacle(${idx})" class="danger">Remove</button>
+          </div>`).join('');
+      }
+    }
+
+    function removeCity(idx) {
+      map.removeLayer(markers[idx]);
+      markers.splice(idx, 1);
+      cities.splice(idx, 1);
+      updateCityList();
+      if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+      clearDistanceMarkers();
+      document.getElementById('totalDistance').textContent = '0 km';
+      document.getElementById('distanceMatrix').innerHTML = '';
+    }
+
+    function removeObstacle(idx) {
+      obstacles.splice(idx, 1);
+      updateObstacleList();
+    }
+
+    // ---------- MODAL ----------
+    function openModal() {
+      document.getElementById('infoModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('infoModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+    window.addEventListener('click', e => {
+      const modal = document.getElementById('infoModal');
+      if (e.target === modal) closeModal();
+    });
+
+    // ---------- MAP CLICK MODE ----------
+    document.getElementById('toggleMapClick').addEventListener('click', () => {
+      mapClickMode = !mapClickMode;
+      const btn = document.getElementById('toggleMapClick');
+      const indicator = document.getElementById('modeIndicator');
+      if (mapClickMode) {
+        btn.textContent = 'Disable Map Click Mode';
+        btn.style.background = 'linear-gradient(135deg,#f44336,#d32f2f)';
+        indicator.style.display = 'block';
+        map.getContainer().style.cursor = 'crosshair';
+      } else {
+        btn.textContent = 'Enable Map Click Mode';
+        btn.style.background = 'linear-gradient(135deg,#ff9800,#f57c00)';
+        indicator.style.display = 'none';
+        map.getContainer().style.cursor = '';
+      }
+    });
+
+    // ---------- ADD CITY / STOP ----------
+    async function addCityByName(name) {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ', India')}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.length) { alert('City not found.'); return; }
+        const { lat, lon, display_name } = data[0];
+        const marker = L.marker([lat, lon]).addTo(map).bindPopup(`<b>${name}</b><br>${display_name}`);
+        markers.push(marker);
+        cities.push({ name, lat: parseFloat(lat), lng: parseFloat(lon) });
+        map.setView([lat, lon], 6);
+        updateCityList();
+      } catch (err) {
+        alert('Unable to fetch city data.');
+      }
+    }
+
+    document.getElementById('addCity').addEventListener('click', async () => {
+      const cityName = document.getElementById('citySelect').value;
+      if (!cityName) { alert('Please select a city first!'); return; }
+      await addCityByName(cityName);
+    });
+
+    document.getElementById('addStop').addEventListener('click', async () => {
+      const cityName = document.getElementById('stopInput').value.trim();
+      if (!cityName) { alert('Please enter a location name!'); return; }
+      await addCityByName(cityName);
+      document.getElementById('stopInput').value = '';
+    });
+
+    // ---------- ADD OBSTACLE ----------
+    document.getElementById('addObstacle').addEventListener('click', () => {
+      const obstacle = document.getElementById('obstacleInput').value.trim();
+      if (!obstacle) { alert('Please enter an obstacle name!'); return; }
+      obstacles.push(obstacle);
+      updateObstacleList();
+      document.getElementById('obstacleInput').value = '';
+    });
+
+    // ---------- CLEAR ALL ----------
+    document.getElementById('clearAll').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all cities and obstacles?')) {
+        markers.forEach(m => map.removeLayer(m));
+        if (routeLine) map.removeLayer(routeLine);
+        clearDistanceMarkers();
+        markers = []; cities = []; obstacles = []; routeLine = null;
+        updateCityList(); updateObstacleList();
+        document.getElementById('totalDistance').textContent = '0 km';
+        document.getElementById('distanceMatrix').innerHTML = '';
+      }
+    });
+
+    // ---------- DISTANCE HELPERS ----------
+    function haversine(a, b) {
+      const R = 6371;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLng = (b.lng - a.lng) * Math.PI / 180;
+      const lat1 = a.lat * Math.PI / 180;
+      const lat2 = b.lat * Math.PI / 180;
+      const h = Math.sin(dLat/2)**2 + Math.sin(dLng/2)**2 * Math.cos(lat1) * Math.cos(lat2);
+      return 2 * R * Math.asin(Math.sqrt(h));
+    }
+
+    function clearDistanceMarkers() {
+      distanceMarkers.forEach(m => map.removeLayer(m));
+      distanceMarkers = [];
+    }
+
+    // ---------- OSRM ROUTING ----------
+    async function getRouteFromOSRM(start, end) {
+      const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+          return {
+            coordinates: data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]),
+            distance: data.routes[0].distance / 1000,
+            duration: data.routes[0].duration / 60
+          };
+        }
+      } catch (error) { console.error('OSRM error:', error); }
+      return null;
+    }
+
+    // ---------- OBSTACLE CHECK ----------
+    function isObstacleInPath(cityName) {
+      return obstacles.some(obs =>
+        cityName.toLowerCase().includes(obs.toLowerCase()) ||
+        obs.toLowerCase().includes(cityName.toLowerCase())
+      );
+    }
+
+    // ---------- TSP (exact for <=8, greedy otherwise) ----------
+    function findOptimalTSPRoute(cities, obstacles) {
+      const validCities = cities.filter(c => !isObstacleInPath(c.name));
+      if (validCities.length < 2) return null;
+
+      let bestRoute = null, bestDistance = Infinity;
+
+      function permute(arr, start = 0) {
+        if (start === arr.length - 1) {
+          let dist = 0;
+          for (let i = 0; i < arr.length - 1; i++) dist += haversine(arr[i], arr[i + 1]);
+          if (dist < bestDistance) { bestDistance = dist; bestRoute = [...arr]; }
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          [arr[start], arr[i]] = [arr[i], arr[start]];
+          permute(arr, start + 1);
+          [arr[start], arr[i]] = [arr[i], arr[start]];
+        }
+      }
+
+      if (validCities.length <= 8) {
+        permute([...validCities]);
+        return { route: bestRoute, distance: bestDistance };
+      } else {
+        let unvisited = [...validCities];
+        let current = unvisited.shift();
+        let path = [current];
+        let dist = 0;
+        while (unvisited.length > 0) {
+          let nearest = unvisited.reduce((min, c) =>
+            haversine(current, c) < haversine(current, min) ? c : min
+          );
+          dist += haversine(current, nearest);
+          current = nearest;
+          path.push(current);
+          unvisited = unvisited.filter(c => c !== nearest);
+        }
+        return { route: path, distance: dist };
+      }
+    }
+
+    // ---------- MAIN "GO" BUTTON ----------
+    document.getElementById('go').addEventListener('click', async () => {
+      if (cities.length < 2) { alert('Please add at least 2 cities!'); return; }
+      const validCities = cities.filter(c => !isObstacleInPath(c.name));
+      if (validCities.length < 2) { alert('Not enough valid cities!'); return; }
+
+      document.getElementById('go').disabled = true;
+      document.getElementById('go').textContent = 'Calculating Optimal Route...';
+      clearDistanceMarkers();
+
+      const result = findOptimalTSPRoute(cities, obstacles);
+      if (!result) { alert('Could not find a valid route!'); document.getElementById('go').disabled = false; document.getElementById('go').textContent = 'Find Optimal Route'; return; }
+
+      const path = result.route;
+      let totalDist = 0;
+      let segments = [];
+      let allCoords = [];
+
+      for (let i = 0; i < path.length - 1; i++) {
+        const routeData = await getRouteFromOSRM(path[i], path[i + 1]);
+        if (routeData) {
+          totalDist += routeData.distance;
+          allCoords.push(...routeData.coordinates);
+          segments.push({ from: path[i].name, to: path[i + 1].name, distance: routeData.distance, duration: routeData.duration });
+          const midIdx = Math.floor(routeData.coordinates.length / 2);
+          const mid = routeData.coordinates[midIdx];
+          const label = L.marker(mid, {
+            icon: L.divIcon({
+              className: 'distance-label',
+              html: `<div style="background:white;padding:6px 10px;border-radius:5px;border:2px solid ${currentRouteColor};font-weight:bold;color:${currentRouteColor};white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.3);font-size:12px;">${routeData.distance.toFixed(1)} km</div>`,
+              iconSize: [70, 25],
+              iconAnchor: [35, 12]
+            })
+          }).addTo(map);
+          distanceMarkers.push(label);
+        } else {
+          const fallback = haversine(path[i], path[i + 1]);
+          totalDist += fallback;
+          segments.push({ from: path[i].name, to: path[i + 1].name, distance: fallback, duration: null });
+        }
+      }
+
+      if (routeLine) map.removeLayer(routeLine);
+      if (allCoords.length) {
+        routeLine = L.polyline(allCoords, { color: currentRouteColor, weight: currentRouteWidth, opacity: 0.8 }).addTo(map);
+      } else {
+        routeLine = L.polyline(path.map(p => [p.lat, p.lng]), { color: currentRouteColor, weight: currentRouteWidth, opacity: 0.8, dashArray: '10,10' }).addTo(map);
+      }
+      map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+      document.getElementById('totalDistance').textContent = totalDist.toFixed(2) + ' km';
+      const matrixHTML = `
+        <h4>Optimal Route (${path.length <= 8 ? 'Exact Solution' : 'Greedy Approximation'})</h4>
+        <div style="background:#e3f2fd;padding:10px;border-radius:5px;margin-bottom:10px;font-size:.85em;">
+          <strong>Route Order:</strong> ${path.map(p => p.name).join(' → ')}
+        </div>
+        ${segments.map((s, i) => `
+          <div class="distance-row">
+            <span>${i+1}. ${s.from} → ${s.to}</span>
+            <span>${s.distance.toFixed(2)} km${s.duration ? ` (${s.duration.toFixed(0)} min)` : ''}</span>
+          </div>`).join('')}
+      `;
+      document.getElementById('distanceMatrix').innerHTML = matrixHTML;
+
+      document.getElementById('go').disabled = false;
+      document.getElementById('go').textContent = 'Find Optimal Route';
+    });
+
+    // ---------- INITIALISE ----------
+    window.addEventListener('load', () => {
+      initMap();
+      populateStates();
+      setTimeout(() => map.invalidateSize(), 100);
+    });
+  </script>
+</body>
+</html>

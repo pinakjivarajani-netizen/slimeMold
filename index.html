@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slime Mould - Nature's Computational Genius</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: "Inter", sans-serif;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* Animated Background */
+  .bg-animation {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.3), transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(168, 85, 247, 0.2), transparent 50%);
+    animation: bgShift 15s ease-in-out infinite;
+  }
+
+  @keyframes bgShift {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-image: 
+      radial-gradient(2px 2px at 20% 30%, white, transparent),
+      radial-gradient(2px 2px at 60% 70%, white, transparent),
+      radial-gradient(1px 1px at 50% 50%, white, transparent),
+      radial-gradient(1px 1px at 80% 10%, white, transparent),
+      radial-gradient(2px 2px at 90% 60%, white, transparent);
+    background-size: 200% 200%;
+    animation: particleMove 20s linear infinite;
+    opacity: 0.4;
+  }
+
+  @keyframes particleMove {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  /* Navigation */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 25px 50px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo-text {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.5em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-tag {
+    font-size: 0.9em;
+    color: #9ca3af;
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px 50px;
+    z-index: 2;
+  }
+
+  .hero-content {
+    max-width: 1000px;
+    animation: fadeInUp 1s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    border-radius: 50px;
+    font-size: 0.9em;
+    margin-bottom: 30px;
+    color: #a5b4fc;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .hero h1 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 5em;
+    font-weight: 900;
+    margin-bottom: 20px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes textGlow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5)); }
+    50% { filter: drop-shadow(0 0 40px rgba(168, 85, 247, 0.8)); }
+  }
+
+  .hero-subtitle {
+    font-size: 1.5em;
+    color: #d1d5db;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .organism-icon {
+    font-size: 8em;
+    margin: 40px 0;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* Main Content */
+  .content {
+    position: relative;
+    z-index: 2;
+    padding: 80px 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .section-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 3em;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-subtitle {
+    font-size: 1.2em;
+    color: #9ca3af;
+  }
+
+  /* Feature Cards */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 40px;
+    margin-bottom: 100px;
+  }
+
+  .feature-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 24px;
+    padding: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.15), transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover::before {
+    opacity: 1;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+  }
+
+  .feature-icon {
+    font-size: 5em;
+    margin-bottom: 25px;
+    display: block;
+  }
+
+  .feature-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #6366f1;
+  }
+
+  .feature-description {
+    line-height: 1.8;
+    color: #d1d5db;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+  }
+
+  .feature-stats {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 16px;
+    padding: 25px;
+    margin-top: 25px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .stat-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .stat-icon {
+    font-size: 1.5em;
+    margin-right: 15px;
+  }
+
+  .stat-text {
+    flex: 1;
+  }
+
+  .stat-label {
+    font-size: 0.9em;
+    color: #9ca3af;
+    margin-bottom: 5px;
+  }
+
+  .stat-value {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #6366f1;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    border-radius: 32px;
+    padding: 80px 50px;
+    text-align: center;
+    margin: 100px auto;
+    max-width: 1100px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
+    top: -250px;
+    right: -250px;
+    animation: rotatePulse 8s linear infinite;
+  }
+
+  @keyframes rotatePulse {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .cta-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 2.8em;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-subtitle {
+    font-size: 1.3em;
+    color: #d1d5db;
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cta-btn {
+    padding: 20px 40px;
+    font-size: 1.15em;
+    font-weight: 700;
+    font-family: "Inter", sans-serif;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .cta-btn:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .cta-btn span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(16, 185, 129, 0.5);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.5);
+  }
+
+  .btn-tertiary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  .btn-tertiary:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(245, 158, 11, 0.5);
+  }
+
+  .btn-icon {
+    font-size: 1.4em;
+  }
+
+  /* Footer */
+  footer {
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 60px 20px 30px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .footer-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: #6366f1;
+  }
+
+  .footer-authors {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+
+  .footer-course {
+    color: #9ca3af;
+    margin-bottom: 30px;
+  }
+
+  .footer-divider {
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #6366f1, transparent);
+    margin: 30px auto;
+  }
+
+  .footer-copyright {
+    color: #6b7280;
+    font-size: 0.9em;
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, #1f2937, #111827);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    max-width: 900px;
+    margin: 50px auto;
+    border-radius: 24px;
+    padding: 60px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+  }
+
+  .modal-close:hover {
+    transform: rotate(90deg) scale(1.1);
+  }
+
+  .modal h2 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 2.5em;
+    color: #6366f1;
+    margin-bottom: 30px;
+  }
+
+  .modal h3 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.8em;
+    color: #a855f7;
+    margin: 30px 0 15px;
+  }
+
+  .modal p, .modal li {
+    line-height: 1.9;
+    color: #d1d5db;
+    margin-bottom: 15px;
+  }
+
+  .modal ul {
+    margin-left: 30px;
+  }
+
+  .summary-box {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 25px 0;
+  }
+
+  .key-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+  }
+
+  .key-stat {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .key-stat-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: #a855f7;
+    margin-bottom: 10px;
+  }
+
+  .key-stat-label {
+    color: #9ca3af;
+  }
+
+  @media (max-width: 768px) {
+    nav {
+      padding: 20px 25px;
+    }
+
+    .hero h1 {
+      font-size: 3em;
+    }
+
+    .organism-icon {
+      font-size: 5em;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+      padding: 35px;
+    }
+
+    .cta-section {
+      padding: 60px 30px;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cta-btn {
+      width: 100%;
+      max-width: 350px;
+      justify-content: center;
+    }
+
+    .modal-content {
+      padding: 40px 30px;
+      margin: 30px 15px;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="bg-animation"></div>
+  <div class="particles"></div>
+
+  <nav>
+    <div class="logo-text">PHYSARUM</div>
+    <div class="nav-tag">Bio-Computational Intelligence</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🧬 Nature-Inspired Computing</div>
+      <h1>SLIME MOULD<br>INTELLIGENCE</h1>
+      <p class="hero-subtitle">Unlocking Nature's Algorithm for Urban Planning & Cosmic Discovery</p>
+
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Revolutionary Applications</h2>
+        <p class="section-subtitle">How a brainless organism is solving humanity's complex problems</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Tokyo Metro -->
+        <div class="feature-card">
+          <span class="feature-icon">🚇</span>
+          <h3 class="feature-title">Tokyo Railway Network</h3>
+          <p class="feature-description">
+            In a groundbreaking 2010 experiment, scientists placed food sources at locations matching Tokyo's major cities. The slime mould naturally optimized its network to mirror Tokyo's actual railway system with stunning accuracy.
+          </p>
+          <p class="feature-description">
+            The organism created efficient pathways through pure biological optimization—no algorithms, no computers, just millions of years of evolution solving the traveling salesman problem in real-time.
+          </p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-icon">📊</span>
+              <div class="stat-text">
+                <div class="stat-label">Network Vulnerability</div>
+                <div class="stat-value">40% Less</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⚡</span>
+              <div class="stat-text">
+                <div class="stat-label">Optimization Time</div>
+                <div class="stat-value">10% Faster</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🎯</span>
+              <div class="stat-text">
+                <div class="stat-label">Efficiency</div>
+                <div class="stat-value">Multi-Objective</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Matter -->
+        <div class="feature-card">
+          <span class="feature-icon">🌌</span>
+          <h3 class="feature-title">Dark Matter Mapping</h3>
+          <p class="feature-description">
+            Astrophysicists discovered that slime mould network patterns remarkably resemble the cosmic web—the large-scale structure of dark matter connecting galaxies across the universe.
+          </p>
+          <p class="feature-description">
+            This biological organism operating on a petri dish mimics the same mathematical principles governing matter distribution across billions of light-years. Scientists now use slime mould simulations to predict dark matter locations and map the invisible scaffolding of the cosmos.
+          </p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-icon">🔬</span>
+              <div class="stat-text">
+                <div class="stat-label">Discovery</div>
+                <div class="stat-value">Cosmic Web Similarity</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌠</span>
+              <div class="stat-text">
+                <div class="stat-label">Application</div>
+                <div class="stat-value">Galaxy Distribution</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">💫</span>
+              <div class="stat-text">
+                <div class="stat-label">Impact</div>
+                <div class="stat-value">Universal Patterns</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="cta-section">
+        <h2 class="cta-title">Explore the Research</h2>
+        <p class="cta-subtitle">Dive deeper into bio-inspired algorithms and network optimization</p>
+        <div class="cta-buttons">
+          <a href="biology1.html" class="cta-btn btn-primary">
+            <span class="btn-icon">🗺️</span>
+            <span>Interactive Route Finder</span>
+          </a>
+
+
+	
+
+
+          <a href="slime.pptx" target="_blank" class="cta-btn btn-tertiary">
+            <span class="btn-icon">📚</span>
+            <span>Slime Mould pdf</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <h3 class="footer-title">Project Team</h3>
+      <p class="footer-authors"><strong>Atharva Giri (45)</strong> & <strong>Pinak Jivarajani (64)</strong></p>
+      <p class="footer-course">FY B.Tech Computer Engineering</p>
+      <div class="footer-divider"></div>
+      <p class="footer-copyright">Bio-Inspired Algorithm Research • 2025</p>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div id="summaryModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      
+      <h2>📊 Research Summary</h2>
+      <p><strong>Slime Mold-Inspired Algorithm for Urban Planning and Dark Matter Exploration</strong></p>
+
+      <div class="summary-box">
+        <h3 style="margin-top: 0; color: #6366f1;">🔬 What is Slime Mould?</h3>
+        <p><em>Physarum polycephalum</em> is a single-celled, brainless organism that exhibits intelligent behavior through decentralized computation. It navigates by sensing food, avoids toxins, and uses protoplasmic streaming to form optimized networks—all without a central nervous system.</p>
+      </div>
+
+      <h3>🏙️ The Tokyo Problem</h3>
+      <p>Tokyo's highly dense and complex urban layout required efficient transportation across a sprawling metropolitan area. Traditional urban planning methods were:</p>
+      <ul>
+        <li><strong>Time-consuming:</strong> Required extensive analysis and computational resources</li>
+        <li><strong>Cost-ineffective:</strong> Expensive infrastructure planning and modeling</li>
+        <li><strong>Lacked adaptability:</strong> Rigid designs unable to respond to changes</li>
+      </ul>
+
+      <h3>💡 The Biological Solution</h3>
+      <p>Scientists placed oat flakes (food) at locations corresponding to Tokyo's major cities. The slime mould naturally grew to connect these points, creating a network that remarkably replicated Tokyo's actual railway system.</p>
+
+      <div class="key-stats">
+        <div class="key-stat">
+          <div class="key-stat-value">40%</div>
+          <div class="key-stat-label">Less Vulnerable</div>
+        </div>
+        <div class="key-stat">
+          <div class="key-stat-value">10%</div>
+          <div class="key-stat-label">Time Saved</div>
+        </div>
+        <div class="key-stat">
+          <div class="key-stat-value">100%</div>
+          <div class="key-stat-label">Bio-Inspired</div>
+        </div>
+      </div>
+
+      <h3>📚 Historical Timeline</h3>
+      <ul>
+        <li><strong>1654:</strong> First scientific observation by Thomas Panckow</li>
+        <li><strong>1860s:</strong> Formal classification by Anton de Bary</li>
+        <li><strong>1931:</strong> Life cycle documented by T.J. Howard</li>
+        <li><strong>2000:</strong> Nakagaki's maze-solving breakthrough (Nature journal)</li>
+        <li><strong>2010:</strong> Tokyo railway network experiment</li>
+        <li><strong>2020s:</strong> Applications in logistics, dark matter mapping, AI systems</li>
+      </ul>
+
+      <h3>🌌 Dark Matter & Cosmic Web</h3>
+      <p>The network patterns formed by slime mould show remarkable similarity to the cosmic web—the large-scale structure of the universe formed by dark matter and galaxies. This discovery suggests that similar optimization principles operate at biological and cosmic scales.</p>
+      <p>Researchers now use slime mould simulations to:</p>
+      <ul>
+        <li>Predict dark matter distribution patterns</li>
+        <li>Map connections between galaxy clusters</li>
+        <li>Understand the invisible scaffolding of the universe</li>
+        <li><a href="biology1.html">Model gravitational interactions across cosmic scales</a></li>
+      </ul>
+
+      <h3>🧠 How It Works</h3>
+      <div class="summary-box">
+        <p><strong>Decentralized Intelligence:</strong> The organism optimizes paths through local interactions without centralized control</p>
+        <p><strong>Multi-Objective:</strong> Balances multiple factors: distance, resilience, efficiency</p>
+        <p><strong>Adaptive:</strong> Responds to environmental changes in real-time</p>
+        <p><strong>Fault-Tolerant:</strong> Creates backup routes automatically</p>
+      </div>
+
+      <h3>⚖️ Advantages vs Limitations</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0;">
+        <div>
+          <h4 style="color: #10b981; margin-bottom: 15px;">✅ Advantages</h4>
+          <ul style="margin-left: 20px;">
+            <li>Efficient network formation</li>
+            <li>Sustainable & low-cost</li>
+            <li>Multi-objective optimization</li>
+            <li>Adaptive to changes</li>
+            <li>Fault-tolerant design</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color: #ef4444; margin-bottom: 15px;">❌ Limitations</h4>
+          <ul style="margin-left: 20px;">
+            <li>
